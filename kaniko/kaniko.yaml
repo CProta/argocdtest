@@ -20,7 +20,7 @@ spec:
       - name: kaniko
         image: gcr.io/kaniko-project/executor:latest
         args: ["--context=git://github.com/scriptcamp/kubernetes-kaniko",
-               "--destination=cprota/kaniko-demo-image-4:2.0",
+               "--destination=cprota/kaniko-demo-image-4:latest",
                "--insecure", "--insecure-pull", "--skip-tls-verify", "--skip-tls-verify-pull"]
         volumeMounts:
         - name: kaniko-secret
