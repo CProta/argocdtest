@@ -1,26 +1,44 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: kanikojob
+  name: micromaya-soa-dev
 spec:
-  completions: 1
   template:
-    metadata:
-      name: kanikojob
     spec:
-      restartPolicy: Never
-      containers:
-      - name: kaniko
-        image: gcr.io/kaniko-project/executor:latest
-        args: ["--context=git://github.com/scriptcamp/kubernetes-kaniko",
-              "--destination=cprota/kaniko-demo-image-3:1.0"]
-        volumeMounts:
-            - name: kaniko-secret
-              mountPath: /kaniko/.docker
-      volumes:
+      hostAliases:   
+        - ip: 10.4.0.100
+          hostnames:
+            - bridgegit.collaudokena.com
+        - ip: 10.4.0.7
+          hostnames:
+            - harbor.apps.ocp4.qaocp1.kenamobile.it 
+      volumes:  Associa un nome a una secret creata con oc secret
           - name: kaniko-secret
             secret:
-              secretName: dockercred
-              items:
-                - key: .dockerconfigjson
-                  path: config.json	
+              secretName: regcred
+              items: 
+              - key: .dockerconfigjson
+                path: config.json
+          - name: cert-ssl 
+            configMap:
+                name: ssl-ca-kena
+      containers:  
+      - name: kaniko
+        image: gcr.io/kaniko-project/executor:v1.3.0
+        args: ["--dockerfile=automated-release/docker/Dockerfile",
+               "--build-arg=VERSIONBRANCH=Sviluppo",
+               "--build-arg=ENVPREFIX=test",
+               "--build-arg=GIT_CREDENTIAL_USERNAME=robotaccount",
+               "--build-arg=GIT_CREDENTIAL_PASSWORD=xueHsKXxNhMWyZ2QzHDF",
+               "--context=git://robotaccount:xueHsKXxNhMWyZ2QzHDF@bridgegit.collaudokena.com/micromaya/soa.git#refs/heads/Sviluppo",
+               "--destination=harbor.apps.ocp4.qaocp1.kenamobile.it/mware-int/micromaya-soa:latest",
+               "--insecure", "--insecure-pull", "--skip-tls-verify", "--skip-tls-verify-pull"]
+        resources: 
+          limits:
+            memory: 512Mi
+        volumeMounts: 
+        - name: kaniko-secret
+          mountPath: "/kaniko/.docker"  config.json
+        - name: cert-ssl
+          mountPath: "/kaniko/ssl/certs"  ssl-ca-kena
+      restartPolicy: Never
