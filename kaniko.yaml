@@ -12,7 +12,7 @@ spec:
         - ip: 10.4.0.7
           hostnames:
             - harbor.apps.ocp4.qaocp1.kenamobile.it 
-      volumes:  Associa un nome a una secret creata con oc secret
+      volumes: 
           - name: kaniko-secret
             secret:
               secretName: regcred
