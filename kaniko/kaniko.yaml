@@ -2,6 +2,9 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: numas-be-php-dev
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   backoffLimit: 0
   template:
@@ -17,7 +20,7 @@ spec:
       - name: kaniko
         image: gcr.io/kaniko-project/executor:latest
         args: ["--context=git://github.com/scriptcamp/kubernetes-kaniko",
-               "--destination=cprota/kaniko-demo-image-4:1.0",
+               "--destination=cprota/kaniko-demo-image-4:2.0",
                "--insecure", "--insecure-pull", "--skip-tls-verify", "--skip-tls-verify-pull"]
         volumeMounts:
         - name: kaniko-secret
